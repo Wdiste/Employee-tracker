@@ -54,5 +54,42 @@ function trackerMenu() {
         },
       ],
     },
-  ]);
-}
+  ]).then((result) => {
+    let selection = res.choice;
+
+    switch (selection) {
+      case "VIEW_EMPLOYEES":
+        viewEmployees();
+        break;
+      case "VIEW_DEPARTMENTS":
+        viewDepartments();
+        break;
+      case "VIEW_ROLES":
+        viewRoles();
+        break;
+      case "ADD_EMPLOYEE":
+        addEmployee();
+        break;
+      case "UPDATE_ROLE":
+        updateRole();
+        break;
+      case "ADD_DEPARTMENT":
+        addDepartment();
+        break;
+      case "ADD_ROLE":
+        addRole();
+        break;
+      default:
+        quit();
+    }
+  });
+};
+
+
+function addDepartment(){};
+function addEmployee(){};
+function addRole(){};
+function viewDepartments(){};
+function viewEmployees(){};
+function viewRoles(){};
+function updateRole(){};
