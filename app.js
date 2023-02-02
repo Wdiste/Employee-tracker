@@ -7,7 +7,6 @@ startTracker();
 
 async function startTracker() {
   const logoTitle = logo({ name: "Employee Tracker" }).render();
-  console.log("dept list: ", await listDepartments());
   console.log(logoTitle);
   await trackerMenu();
 }
@@ -24,6 +23,10 @@ async function trackerMenu() {
           value: "VIEW_EMPLOYEES",
         },
         {
+          name: "View Employees By Manager",
+          value: "VIEW_EMPLOYEES_MANAGER",
+        },
+        {
           name: "View All Departments",
           value: "VIEW_DEPARTMENTS",
         },
@@ -36,16 +39,20 @@ async function trackerMenu() {
           value: "ADD_EMPLOYEE",
         },
         {
-          name: "Update Employee Role",
-          value: "UPDATE_ROLE",
-        },
-        {
           name: "Add Department",
           value: "ADD_DEPARTMENT",
         },
         {
           name: "Add Role",
           value: "ADD_ROLE",
+        },
+        {
+          name: "Update Employee Role",
+          value: "UPDATE_ROLE",
+        },
+        {
+          name: "Update Employee Manager",
+          value: "UPDATE_MANAGER",
         },
         {
           name: "Exit",
@@ -60,6 +67,9 @@ async function trackerMenu() {
       case "VIEW_EMPLOYEES":
         await viewEmployees();
         break;
+      case "VIEW_EMPLOYEES_MANAGER":
+        await viewEmployeesByManager();
+        break;
       case "VIEW_DEPARTMENTS":
         await viewDepartments();
         break;
@@ -69,14 +79,17 @@ async function trackerMenu() {
       case "ADD_EMPLOYEE":
         await addEmployee();
         break;
-      case "UPDATE_ROLE":
-        await updateEmployeeRole();
-        break;
       case "ADD_DEPARTMENT":
         await addDepartment();
         break;
       case "ADD_ROLE":
         await addRole();
+        break;
+      case "UPDATE_ROLE":
+        await updateEmployeeRole();
+        break;
+      case "UPDATE_MANAGER":
+        await updateEmployeeManager();
         break;
       default:
         console.log('Exiting tracker... have a nice day!');
@@ -85,6 +98,7 @@ async function trackerMenu() {
   });
 };
 
+// begin creation functions =======================================================
 
 async function addDepartment(){
     await prompt([
@@ -169,6 +183,8 @@ async function addRole(){
         })
 };
 
+// begin display functions =======================================================
+
 function viewDepartments(){
     db.findAllDepartments()
     .then((dbResults) => {
@@ -202,6 +218,8 @@ function viewRoles(){
     .then(() => trackerMenu());
 };
 
+// begin update functions =======================================================
+
 async function updateEmployeeRole(){
     await db.findAllEmployees()
     .then(async employees => prompt([
@@ -229,8 +247,36 @@ async function updateEmployeeRole(){
         }))
 };
 
+async function updateEmployeeManager(){
+  await db.findAllEmployees()
+  .then(async employees => prompt([
+      {
+        type: "list",
+        name: "empId",
+        message: "What is the name of the employee whose manager you wish to update?",
+        choices: await listEmployees()
+      },
+      {
+        type: "list",
+        name: "managerId",
+        message: "Whom is the new manager you wish to assign?",
+        choices: await listEmployees()
+      }
+    ])
+      .then(async res => {
+        if(await res.empId === null) {
+          console.log('no employee selected, returning to main menu');
+          trackerMenu();
+        }
+        await db.updateManager(res.empId, res.managerId)
+          .then(() => console.log(`Updated employee manager in database`))
+          .then(() => trackerMenu())
+      }))
+};
+
 // begin helper functions =======================================================
 // these helpers will retrieve lists of choices for inuirer prompts
+
 async function listEmployees() {
   let list = [];
 
@@ -273,13 +319,57 @@ async function listDepartments() {
   await db.findAllDepartments()
   .then(departments => {
     for(i = 0; i < departments[0].length; i++){
-      const newRole = {
+      const newDept = {
         name: (departments[0][i].dept_name),
         value: departments[0][i].id
       }
-      list.push(newRole);
+      list.push(newDept);
      }
 });
 
   return list;
 };
+
+async function listManagers() {
+  let list = [];
+
+  await db.findAllManagers()
+  .then(managers => {
+    for(i = 0; i < managers[0].length; i++){
+      const newMan = {
+        name: (managers[0][i].first_name + " " + managers[0][i].last_name),
+        value: managers[0][i].id
+      }
+      list.push(newMan);
+     }
+});
+
+  return list;
+};
+
+
+// View employees by manager.
+async function viewEmployeesByManager() {
+  await prompt([
+    {
+      type: "list",
+      name: "manager",
+      message: "Please select the manager you wish to report on",
+      choices: await listManagers()
+    }
+  ])
+  .then(res => db.findEmployeeByManager(res))
+  .then((dbResults) => {
+    const [rows] = dbResults;
+    let employees = rows;
+    console.log("\n");
+    console.table(employees);
+  })
+  .then(() => trackerMenu());
+};
+// View employees by department.
+
+// Delete departments, roles, and employees.
+
+// View the total utilized budget of a department—in other words,
+//  the combined salaries of all employees in that department.
