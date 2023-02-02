@@ -149,6 +149,16 @@ function addRole(){
         {
           name: "title",
           message: "What is the name of the new role?"
+        },
+        {
+          name: "salary",
+          message: "Please enter the hourly rate for this role:"
+        },
+        {
+          type: "list",
+          name: "department",
+          message: "Please select a department to assign this role to:",
+          choices: listDepartments()
         }
       ])
         .then(res => {
@@ -226,6 +236,8 @@ function updateEmployeeRole(){
         }))
 };
 
+// begin helper functions =======================================================
+// these helpers will retrieve lists of choices for inuirer prompts
 async function listEmployees() {
   let list = [];
 
@@ -254,6 +266,23 @@ async function listRoles() {
       const newRole = {
         name: (roles[0][i].title),
         value: roles[0][i].id
+      }
+      list.push(newRole);
+     }
+});
+
+  return list;
+};
+
+async function listDepartments() {
+  let list = [];
+
+  await db.findAllDepartments()
+  .then(departments => {
+    for(i = 0; i < departments[0].length; i++){
+      const newRole = {
+        name: (departments[0][i].dept_name),
+        value: departments[0][i].id
       }
       list.push(newRole);
      }
