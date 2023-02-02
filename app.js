@@ -202,26 +202,29 @@ function viewRoles(){
     .then(() => trackerMenu());
 };
 
-function updateEmployeeRole(){
-    db.findAllEmployees()
-    .then(employees => prompt([
+async function updateEmployeeRole(){
+    await db.findAllEmployees()
+    .then(async employees => prompt([
         {
           type: "list",
           name: "empId",
           message: "What is the name of the employee whose role you wish to update?",
-          choices: listEmployees()
+          choices: await listEmployees()
         },
         {
           type: "list",
           name: "roleId",
           message: "What is the new role you wish to assign?",
-          choices: listRoles()
+          choices: await listRoles()
         }
       ])
-        .then(res => {
-          let role = res;
-          db.updateRole(role)
-            .then(() => console.log(`Added ${role.new_title} to the database`))
+        .then(async res => {
+          if(res.empId === null) {
+            console.log('no employee selected, returning to main menu');
+            trackerMenu();
+          }
+          await db.updateRole(res.empId, res.roleId)
+            .then(() => console.log(`Updated employee role in database`))
             .then(() => trackerMenu())
         }))
 };

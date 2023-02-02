@@ -44,8 +44,7 @@ class companyDb {
 
   updateRole(empId, roleId) {
     return this.connection.promise().query(
-        "UPDATE employee SET role_id= ? WHERE employee.id = ?", roleId, empId
-    );
+        "UPDATE employee SET role_id= (?) WHERE employee.id = (?)", [roleId, empId]);
   };
 };
 
