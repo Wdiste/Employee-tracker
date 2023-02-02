@@ -1,5 +1,4 @@
-const express = require("express");
-const inquirer = require("inquirer");
+const { prompt } = require("inquirer");
 const logo = require("asciiart-logo");
 const db = require("./db");
 require("console.table");
@@ -7,14 +6,17 @@ require("console.table");
 startTracker();
 
 function startTracker() {
+  console.log('beginning startTracker');
   const logoTitle = logo({ name: "Employee Tracker" }).render();
 
   console.log(logoTitle);
   trackerMenu();
 }
 
-function trackerMenu() {
-  prompt([
+async function trackerMenu() {
+  console.log('beginning trackerMenu');
+
+  await prompt([
     {
       type: "list",
       name: "choice",
@@ -54,33 +56,34 @@ function trackerMenu() {
         },
       ],
     },
-  ]).then((result) => {
-    let selection = res.choice;
+  ]).then(async (result) => {
+    let selection = await result.choice;
 
     switch (selection) {
       case "VIEW_EMPLOYEES":
-        viewEmployees();
+        await viewEmployees();
         break;
       case "VIEW_DEPARTMENTS":
-        viewDepartments();
+        await viewDepartments();
         break;
       case "VIEW_ROLES":
-        viewRoles();
+        await viewRoles();
         break;
       case "ADD_EMPLOYEE":
-        addEmployee();
+        await addEmployee();
         break;
       case "UPDATE_ROLE":
-        updateRole();
+        await updateEmployeeRole();
         break;
       case "ADD_DEPARTMENT":
-        addDepartment();
+        await addDepartment();
         break;
       case "ADD_ROLE":
-        addRole();
+        await addRole();
         break;
       default:
-        quit();
+        console.log('Exiting tracker... have a nice day!');
+        return process.exit('success');
     }
   });
 };
@@ -200,12 +203,3 @@ function updateEmployeeRole(){
             .then(() => promptExampleQuestions())
         }))
 };
-
-// function roleArray(noRoles) {
-//     db.findAllRoles()
-//       .then( roles => {
-//         arr = {
-//             title: roles.title,
-//             value: ""
-//       }})
-// };

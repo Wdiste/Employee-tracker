@@ -26,15 +26,15 @@ INSERT INTO employee (first_name, last_name, role_id, manager_id)
 VALUES
     ('Peter', 'Crouch', 1, NULL),
     ('Wayne', 'Rooney', 2, 1),
-    ('Alex', 'Furgeson', 2, NULL),
-    ('Seamus', 'Coleman', 3, 3),
-    ('David', 'Villa', 4, NULL),
-    ('Kevin', 'De Bruyne', 5, 5),
-    ('Alan', 'Shearer', 5, NULL),
-    ('Manuel', 'Rui Costa', 2, 7);
-    ('Clarence', 'Seedorf', 6, 7);
-    ('Ji Song', 'Park', 7, 7);
-    ('Luca', 'Modric', 8, 7);
-    ('Alfredo', 'DiStefano', 9, 7);
-    ('Robin', 'Van Persie', 9, 7);
-    ('Didier', 'Drogba', 2, 7);
+    ('Alex', 'Furgeson', 2, 1),
+    ('Seamus', 'Coleman', 3, NULL),
+    ('David', 'Villa', 4, 4),
+    ('Kevin', 'De Bruyne', 5, 1),
+    ('Alan', 'Shearer', 5, 1),
+    ('Manuel', 'Rui Costa', 2, 1),
+    ('Clarence', 'Seedorf', 6, NULL),
+    ('Ji Song', 'Park', 7, 9),
+    ('Luca', 'Modric', 8, NULL),
+    ('Alfredo', 'DiStefano', 9, 11),
+    ('Robin', 'Van Persie', 9, 11),
+    ('Didier', 'Drogba', 2, 1);
