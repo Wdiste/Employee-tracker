@@ -5,17 +5,14 @@ require("console.table");
 
 startTracker();
 
-function startTracker() {
-  console.log('beginning startTracker');
+async function startTracker() {
   const logoTitle = logo({ name: "Employee Tracker" }).render();
-
+  console.log("employee list: ", await listEmployees());
   console.log(logoTitle);
-  trackerMenu();
+  await trackerMenu();
 }
 
 async function trackerMenu() {
-  console.log('beginning trackerMenu');
-
   await prompt([
     {
       type: "list",
@@ -100,22 +97,56 @@ function addDepartment(){
           let department = res;
           db.createDepartment(department)
             .then(() => console.log(`Added ${department.dept_name} to the database`))
-            .then(() => promptExampleQuestions())
+            .then(() => trackerMenu())
         })
 };
 
-function addEmployee(){
-    prompt([
+async function addEmployee(){
+  let employeeInfo;
+
+    await db.findAllEmployees()
+    .then(async employees => {
+      return await prompt([
         {
-          name: "name",
-          message: "What is the name of the new employee?"
-        }
-      ])
+          name: "first_name",
+          message: "What is the first name of the new employee?"
+        },
+        {
+          name: "last_name",
+          message: "What is the last name of the new employee?"
+        },
+        // {
+        //   type: "list",
+        //   name: "role_id",
+        //   message: "What is the role of the new employee?",
+        //   choices: employees[0].map((employee) => 
+        //     {
+        //       return { 
+        //               title: employee.role,
+        //       }
+        //     }
+        //   )
+        // },
+        {
+          type: "list",
+          name: "manager",
+          message: "Select the employee's manager:",
+          choices: await listEmployees()
+    },
+      ])})
         .then(res => {
-          let employee = res;
+          let result = res;
+          console.log("result: ", result);
+
+          let employee = {
+            first_name: res.first_name,
+            last_name: res.last_name,
+            role_id: res.role_id,
+            manager: res.manager
+          };
           db.createEmployee(employee)
-            .then(() => console.log(`Added ${employee.name} to the database`))
-            .then(() => promptExampleQuestions())
+            .then(() => console.log(`Added ${employee.first_name} ${employee.last_name} to the database`))
+            .then(() => trackerMenu())
         })
 };
 
@@ -130,44 +161,41 @@ function addRole(){
           let role = res;
           db.createRole(role)
             .then(() => console.log(`Added ${role.title} to the database`))
-            .then(() => promptExampleQuestions())
+            .then(() => trackerMenu())
         })
 };
 
 function viewDepartments(){
     db.findAllDepartments()
     .then((dbResults) => {
-      console.log("db results: ", dbResults);
       const [rows] = dbResults;
       let departments = rows;
       console.log("\n");
       console.table(departments);
     })
-    .then(() => startTracker());
+    .then(() => trackerMenu());
 };
 
 function viewEmployees(){
     db.findAllEmployees()
     .then((dbResults) => {
-      console.log("db results: ", dbResults);
       const [rows] = dbResults;
       let employees = rows;
       console.log("\n");
       console.table(employees);
     })
-    .then(() => startTracker());
+    .then(() => trackerMenu());
 };
 
 function viewRoles(){
     db.findAllRoles()
     .then((dbResults) => {
-      console.log("db results: ", dbResults);
       const [rows] = dbResults;
       let roles = rows;
       console.log("\n");
       console.table(roles);
     })
-    .then(() => startTracker());
+    .then(() => trackerMenu());
 };
 
 function updateEmployeeRole(){
@@ -200,6 +228,19 @@ function updateEmployeeRole(){
           let role = res;
           db.updateRole(role)
             .then(() => console.log(`Added ${role.new_title} to the database`))
-            .then(() => promptExampleQuestions())
+            .then(() => trackerMenu())
         }))
+};
+
+async function listEmployees() {
+  const list = [];
+
+  await db.findAllEmployees()
+  .then(employees => {
+    for(i = 0; i < employees[0].length; i++){
+
+    list.push(employees[0][i].first_name + " " + employees[0][i].last_name );
+  }});
+
+  return list;
 };
