@@ -34,7 +34,7 @@ class companyDb {
 
   createRole(role) {
     return this.connection.promise().query(
-      "INSERT INTO role (title) VALUES (?)", role.title);
+      "INSERT INTO role (title, salary, dept_id) VALUES (?, ?, ?)", [role.title, role.salary, role.dept_id]);
   };
 
   createDepartment(department) {

@@ -7,7 +7,7 @@ startTracker();
 
 async function startTracker() {
   const logoTitle = logo({ name: "Employee Tracker" }).render();
-  console.log("employee list: ", await listRoles());
+  console.log("dept list: ", await listDepartments());
   console.log(logoTitle);
   await trackerMenu();
 }
@@ -86,16 +86,16 @@ async function trackerMenu() {
 };
 
 
-function addDepartment(){
-    prompt([
+async function addDepartment(){
+    await prompt([
         {
           name: "dept_name",
           message: "What is the name of the new department?"
         }
       ])
-        .then(res => {
+        .then(async res => {
           let department = res;
-          db.createDepartment(department)
+          await db.createDepartment(department)
             .then(() => console.log(`Added ${department.dept_name} to the database`))
             .then(() => trackerMenu())
         })
@@ -144,7 +144,7 @@ async function addEmployee(){
         })
 };
 
-function addRole(){
+async function addRole(){
     prompt([
         {
           name: "title",
@@ -156,9 +156,9 @@ function addRole(){
         },
         {
           type: "list",
-          name: "department",
+          name: "dept_id",
           message: "Please select a department to assign this role to:",
-          choices: listDepartments()
+          choices: await listDepartments()
         }
       ])
         .then(res => {
