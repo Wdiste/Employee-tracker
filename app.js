@@ -7,7 +7,7 @@ startTracker();
 
 async function startTracker() {
   const logoTitle = logo({ name: "Employee Tracker" }).render();
-  console.log("employee list: ", await listEmployees());
+  console.log("employee list: ", await listRoles());
   console.log(logoTitle);
   await trackerMenu();
 }
@@ -115,18 +115,12 @@ async function addEmployee(){
           name: "last_name",
           message: "What is the last name of the new employee?"
         },
-        // {
-        //   type: "list",
-        //   name: "role_id",
-        //   message: "What is the role of the new employee?",
-        //   choices: employees[0].map((employee) => 
-        //     {
-        //       return { 
-        //               title: employee.role,
-        //       }
-        //     }
-        //   )
-        // },
+        {
+          type: "list",
+          name: "role_id",
+          message: "What is the role of the new employee?",
+          choices: await listRoles()
+        },
         {
           type: "list",
           name: "manager",
@@ -233,14 +227,37 @@ function updateEmployeeRole(){
 };
 
 async function listEmployees() {
-  const list = [];
+  let list = [];
 
   await db.findAllEmployees()
   .then(employees => {
-    for(i = 0; i < employees[0].length; i++){
+    list.push({name: "none", value: null});
 
-    list.push(employees[0][i].first_name + " " + employees[0][i].last_name );
-  }});
+    for(i = 0; i < employees[0].length; i++){
+      const newEmp = {
+        name: (employees[0][i].first_name + " " + employees[0][i].last_name),
+        value: employees[0][i].id
+      }
+      list.push(newEmp);
+     }
+});
+
+  return list;
+};
+
+async function listRoles() {
+  let list = [];
+
+  await db.findAllRoles()
+  .then(roles => {
+    for(i = 0; i < roles[0].length; i++){
+      const newRole = {
+        name: (roles[0][i].title),
+        value: roles[0][i].id
+      }
+      list.push(newRole);
+     }
+});
 
   return list;
 };
