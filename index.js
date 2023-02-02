@@ -87,9 +87,25 @@ function trackerMenu() {
 
 
 function addDepartment(){};
+
 function addEmployee(){};
+
 function addRole(){};
-function viewDepartments(){};
+
+function viewDepartments(){
+    db.findAllDepartments()
+    .then((dbResults) => {
+      console.log("db results: ", dbResults);
+      const [rows] = dbResults;
+      let departments = rows;
+      console.log("\n");
+      console.table(departments);
+    })
+    .then(() => startTracker());
+};
+
 function viewEmployees(){};
+
 function viewRoles(){};
+
 function updateRole(){};
