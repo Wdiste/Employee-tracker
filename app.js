@@ -209,23 +209,13 @@ function updateEmployeeRole(){
           type: "list",
           name: "empId",
           message: "What is the name of the employee whose role you wish to update?",
-          choices: employees.map(employee => {
-            return {
-              name: (employee.first_name + employee.last_name),
-              value: employee.id
-            };
-          })
+          choices: listEmployees()
         },
         {
           type: "list",
           name: "roleId",
           message: "What is the new role you wish to assign?",
-          choices: [employees.map(employee => {
-            return {
-                name: employee.role,
-                value: employee.role_id
-            };
-          })]
+          choices: listRoles()
         }
       ])
         .then(res => {
