@@ -1,6 +1,7 @@
 const { prompt } = require("inquirer");
 const logo = require("asciiart-logo");
 const db = require("./db");
+const { viewBudgetReport } = require("./db");
 require("console.table");
 
 startTracker();
@@ -59,6 +60,22 @@ async function trackerMenu() {
           value: "UPDATE_MANAGER",
         },
         {
+          name: "Delete Employee",
+          value: "DELETE_EMPLOYEE",
+        },
+        {
+          name: "Delete Department",
+          value: "DELETE_DEPARTMENT",
+        },
+        {
+          name: "Delete Role",
+          value: "DELETE_ROLE",
+        },
+        {
+          name: "View Budget",
+          value: "BUDGET_REPORT",
+        },
+        {
           name: "Exit",
           value: "EXIT",
         },
@@ -97,6 +114,18 @@ async function trackerMenu() {
         break;
       case "UPDATE_MANAGER":
         await updateEmployeeManager();
+        break;
+      case "DELETE_EMPLOYEE":
+        await deleteEmployee();
+        break;
+      case "DELETE_DEPARTMENT":
+        await deleteDepartment();
+        break;
+      case "DELETE_ROLE":
+        await deleteRole();
+        break;
+      case "BUDGET_REPORT":
+        await budgetReport();
         break;
       default:
         console.log('Exiting tracker... have a nice day!');
@@ -233,6 +262,25 @@ async function viewEmployeesByManager() {
   .then(() => trackerMenu());
 };
 
+async function viewEmployeesByDepartment() {
+  await prompt([
+    {
+      type: "list",
+      name: "department",
+      message: "Please select the department you wish to report on",
+      choices: await listDepartments()
+    }
+  ])
+  .then(res => db.findEmployeeByDepartment(res))
+  .then((dbResults) => {
+    const [rows] = dbResults;
+    let employees = rows;
+    console.log("\n");
+    console.table(employees);
+  })
+  .then(() => trackerMenu());
+};
+
 async function viewRoles(){
     await db.findAllRoles()
     .then((dbResults) => {
@@ -247,8 +295,7 @@ async function viewRoles(){
 // begin update functions =======================================================
 
 async function updateEmployeeRole(){
-    await db.findAllEmployees()
-    .then(async employees => prompt([
+      await prompt([
         {
           type: "list",
           name: "empId",
@@ -270,12 +317,11 @@ async function updateEmployeeRole(){
           await db.updateRole(res.empId, res.roleId)
             .then(() => console.log(`Updated employee role in database`))
             .then(() => trackerMenu())
-        }))
+        })
 };
 
 async function updateEmployeeManager(){
-  await db.findAllEmployees()
-  .then(async employees => prompt([
+  await prompt([
       {
         type: "list",
         name: "empId",
@@ -297,7 +343,7 @@ async function updateEmployeeManager(){
         await db.updateManager(res.empId, res.managerId)
           .then(() => console.log(`Updated employee manager in database`))
           .then(() => trackerMenu())
-      }))
+      })
 };
 
 // begin helper functions =======================================================
@@ -374,28 +420,77 @@ async function listManagers() {
 };
 
 
+// begin delete functions =======================================================
 
-// View employees by department.
-async function viewEmployeesByDepartment() {
+async function deleteEmployee() {
+    await prompt([
+      {
+        type: "list",
+        name: "empId",
+        message: "Please select which employee to delete",
+        choices: await listEmployees()
+      }
+    ])
+    .then(async res => {
+      if(res.empId === null) {
+        console.log('no employee selected, returning to main menu');
+        trackerMenu();
+      }
+      await db.deleteEmployee(res.empId)
+        .then(() => console.log(`Deleted employee role from database`))
+        .then(() => trackerMenu())
+    })
+};
+
+async function deleteDepartment() {
   await prompt([
     {
       type: "list",
-      name: "department",
-      message: "Please select the department you wish to report on",
+      name: "deptId",
+      message: "Please select which Department to delete",
       choices: await listDepartments()
     }
   ])
-  .then(res => db.findEmployeeByDepartment(res))
+  .then(async res => {
+    if(res.deptId === null) {
+      console.log('no employee selected, returning to main menu');
+      trackerMenu();
+    }
+    await db.deleteDepartment(res.deptId)
+      .then(() => console.log(`Deleted Department role from database`))
+      .then(() => trackerMenu())
+  })
+};
+
+async function deleteRole() {
+  await prompt([
+    {
+      type: "list",
+      name: "roleId",
+      message: "Please select which Role to delete",
+      choices: await listRoles()
+    }
+  ])
+  .then(async res => {
+    if(res.roleId === null) {
+      console.log('no Role selected, returning to main menu');
+      trackerMenu();
+    }
+    await db.deleteRole(res.roleId)
+      .then(() => console.log(`Deleted Role role from database`))
+      .then(() => trackerMenu())
+  })
+};
+
+async function budgetReport() {
+  db.viewBudgetReport()
   .then((dbResults) => {
     const [rows] = dbResults;
-    let employees = rows;
+    let budget = rows;
     console.log("\n");
-    console.table(employees);
+    console.table(budget);
   })
   .then(() => trackerMenu());
 };
-
-// Delete departments, roles, and employees.
-
 // View the total utilized budget of a department—in other words,
 //  the combined salaries of all employees in that department.

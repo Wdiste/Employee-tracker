@@ -81,6 +81,31 @@ class companyDb {
     return this.connection.promise().query(
         "UPDATE employee SET manager_id= (?) WHERE employee.id = (?)", [managerId, empId]);
   };
+
+  deleteEmployee(empId) {
+    return this.connection.promise().query(
+        "DELETE FROM employee WHERE employee.id = (?)", empId);
+  };
+
+  deleteDepartment(deptId) {
+    return this.connection.promise().query(
+        "DELETE FROM departments WHERE departments.id = (?)", deptId);
+  };
+
+  deleteRole(roleId) {
+    return this.connection.promise().query(
+        "DELETE FROM role WHERE id = (?)", roleId);
+  };
+
+  viewBudgetReport() {
+    return this.connection.promise().query(
+    "SELECT departments.dept_name AS department, SUM(role.salary) AS used_budget " +
+    "FROM employee " +
+    "LEFT JOIN role ON employee.role_id = role.id " +
+    "LEFT JOIN departments on role.dept_id = departments.id " +
+    "LEFT JOIN employee manager ON manager.id = employee.manager_id " +
+    "GROUP BY departments.dept_name;"
+  )}
 };
 
 module.exports = new companyDb(connection);
