@@ -27,6 +27,10 @@ async function trackerMenu() {
           value: "VIEW_EMPLOYEES_MANAGER",
         },
         {
+          name: "View Employees By Department",
+          value: "VIEW_EMPLOYEES_DEPARTMENT",
+        },
+        {
           name: "View All Departments",
           value: "VIEW_DEPARTMENTS",
         },
@@ -69,6 +73,9 @@ async function trackerMenu() {
         break;
       case "VIEW_EMPLOYEES_MANAGER":
         await viewEmployeesByManager();
+        break;
+      case "VIEW_EMPLOYEES_DEPARTMENT":
+        await viewEmployeesByDepartment();
         break;
       case "VIEW_DEPARTMENTS":
         await viewDepartments();
@@ -185,8 +192,8 @@ async function addRole(){
 
 // begin display functions =======================================================
 
-function viewDepartments(){
-    db.findAllDepartments()
+async function viewDepartments(){
+    await db.findAllDepartments()
     .then((dbResults) => {
       const [rows] = dbResults;
       let departments = rows;
@@ -196,8 +203,8 @@ function viewDepartments(){
     .then(() => trackerMenu());
 };
 
-function viewEmployees(){
-    db.findAllEmployees()
+async function viewEmployees(){
+    await db.findAllEmployees()
     .then((dbResults) => {
       const [rows] = dbResults;
       let employees = rows;
@@ -207,8 +214,27 @@ function viewEmployees(){
     .then(() => trackerMenu());
 };
 
-function viewRoles(){
-    db.findAllRoles()
+async function viewEmployeesByManager() {
+  await prompt([
+    {
+      type: "list",
+      name: "manager",
+      message: "Please select the manager you wish to report on",
+      choices: await listManagers()
+    }
+  ])
+  .then(res => db.findEmployeeByManager(res))
+  .then((dbResults) => {
+    const [rows] = dbResults;
+    let employees = rows;
+    console.log("\n");
+    console.table(employees);
+  })
+  .then(() => trackerMenu());
+};
+
+async function viewRoles(){
+    await db.findAllRoles()
     .then((dbResults) => {
       const [rows] = dbResults;
       let roles = rows;
@@ -320,7 +346,7 @@ async function listDepartments() {
   .then(departments => {
     for(i = 0; i < departments[0].length; i++){
       const newDept = {
-        name: (departments[0][i].dept_name),
+        name: departments[0][i].dept_name,
         value: departments[0][i].id
       }
       list.push(newDept);
@@ -348,17 +374,18 @@ async function listManagers() {
 };
 
 
-// View employees by manager.
-async function viewEmployeesByManager() {
+
+// View employees by department.
+async function viewEmployeesByDepartment() {
   await prompt([
     {
       type: "list",
-      name: "manager",
-      message: "Please select the manager you wish to report on",
-      choices: await listManagers()
+      name: "department",
+      message: "Please select the department you wish to report on",
+      choices: await listDepartments()
     }
   ])
-  .then(res => db.findEmployeeByManager(res))
+  .then(res => db.findEmployeeByDepartment(res))
   .then((dbResults) => {
     const [rows] = dbResults;
     let employees = rows;
@@ -367,7 +394,6 @@ async function viewEmployeesByManager() {
   })
   .then(() => trackerMenu());
 };
-// View employees by department.
 
 // Delete departments, roles, and employees.
 

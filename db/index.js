@@ -34,6 +34,16 @@ class companyDb {
       );
   };
 
+  findEmployeeByDepartment(deptId) {
+    return this.connection.promise().query(
+        "SELECT employee.id, employee.first_name, employee.last_name, role.title AS role, departments.dept_name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager " +
+        "FROM employee " +
+        "LEFT JOIN role ON employee.role_id = role.id " +
+        "LEFT JOIN departments on role.dept_id = departments.id " +
+        "LEFT JOIN employee manager ON manager.id = employee.manager_id " +
+        "WHERE role.dept_id = (?);", deptId.department)
+  };
+
   findAllDepartments() {
     return this.connection.promise().query(
       "SELECT departments.id, departments.dept_name FROM departments;"
